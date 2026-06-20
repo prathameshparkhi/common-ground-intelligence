@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>common ground</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+@font-face {
+  font-family: 'Etna';
+  src: local('Etna Sans Serif'), local('EtnaSansSerif'),
+       url('etna-sans-serif.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --lime: #B8F241;
+  --lime-dim: #8fc42e;
+  --bg: #0D0D0D;
+  --surface: #141414;
+  --border: #2a2a2a;
+  --text: #F0F0F0;
+  --muted: #888;
+  /* Etna → Outfit → Nunito → geometric sans fallback */
+  --font: 'Etna', 'Outfit', 'Nunito', 'DM Sans', system-ui, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  overflow-x: hidden;
+  cursor: none;
+  /* Proportional letter-spacing baseline — Etna is wide-set */
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── CURSOR ──────────────────────────────────────────────────── */
+.cursor {
+  position: fixed;
+  width: 11px; height: 11px;
+  background: var(--lime);
+  border-radius: 55%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width 0.2s, height 0.2s;
+  mix-blend-mode: difference;
+}
+.cursor-ring {
+  position: fixed;
+  width: 36px; height: 36px;
+  border: 1.5px solid var(--lime);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: width 0.25s, height 0.25s;
+  opacity: 0.5;
+}
+
+/* ── NAV ─────────────────────────────────────────────────────── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 48px;
+  background: rgba(13,13,13,0.88);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  transition: padding 0.3s ease;
+}
+nav.scrolled { padding: 14px 48px; }
+
+.nav-logo {
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  text-decoration: none;
+}
+.nav-logo span { color: var(--lime); }
+
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a {
+  font-family: var(--font);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -3px; left: 0;
+  width: 0; height: 1px;
+  background: var(--lime);
+  transition: width 0.3s ease;
+}
+.nav-links a:hover, .nav-links a.active { color: var(--lime); }
+.nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+
+/* ── PAGES ───────────────────────────────────────────────────── */
+.page {
+  display: none;
+  min-height: 100vh;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.page.active { display: block; opacity: 1; transform: translateY(0); }
+
+/* ══════════════════════════════════════
+   HOME
+══════════════════════════════════════ */
+.hero {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+#topo-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  opacity: 0.25;
+}
+.hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 0 48px;
+  max-width: 900px;
+}
+.hero-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--lime);
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.3s forwards;
+}
+.hero-title {
+  font-family: var(--font);
+  font-size: clamp(52px, 8vw, 110px);
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.025em;
+  margin-bottom: 36px;
+  opacity: 0;
+  animation: fadeUp 0.9s ease 0.5s forwards;
+}
+.hero-title .line2 { color: var(--lime); display: block; }
+
+.hero-sub {
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--muted);
+  max-width: 520px;
+  line-height: 1.75;
+  letter-spacing: 0.02em;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeUp 0.9s ease 0.7s forwards;
+}
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--lime);
+  color: #0D0D0D;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 16px 32px;
+  text-decoration: none;
+  transition: background 0.2s, gap 0.2s;
+  opacity: 0;
+  animation: fadeUp 0.9s ease 0.9s forwards;
+  cursor: none;
+}
+.hero-cta:hover { background: #ceff5a; gap: 20px; }
+.hero-cta svg { width: 16px; transition: transform 0.2s; }
+.hero-cta:hover svg { transform: translateX(4px); }
+
+.hero-scroll {
+  position: absolute;
+  bottom: 40px; right: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 2;
+  opacity: 0;
+  animation: fadeIn 1s ease 1.2s forwards;
+}
+.hero-scroll span {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  writing-mode: vertical-rl;
+}
+.scroll-line {
+  width: 1px; height: 60px;
+  background: linear-gradient(to bottom, var(--lime), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+
+/* Stats strip */
+.stats-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.stat { background: var(--bg); padding: 48px; }
+.stat-num {
+  font-family: var(--font);
+  font-size: 56px;
+  font-weight: 700;
+  color: var(--lime);
+  line-height: 1;
+  margin-bottom: 10px;
+  letter-spacing: -0.02em;
+}
+.stat-label {
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+
+/* Features */
+.features { padding: 120px 48px; }
+.section-header { margin-bottom: 72px; }
+.section-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--lime);
+  margin-bottom: 16px;
+}
+.section-title {
+  font-family: var(--font);
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+.feature-card {
+  background: var(--bg);
+  padding: 48px;
+  transition: background 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 0; height: 2px;
+  background: var(--lime);
+  transition: width 0.4s ease;
+}
+.feature-card:hover::before { width: 100%; }
+.feature-card:hover { background: var(--surface); }
+.feature-icon {
+  width: 44px; height: 44px;
+  background: rgba(184,242,65,0.08);
+  border: 1px solid rgba(184,242,65,0.2);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 28px;
+  color: var(--lime); font-size: 20px;
+  transition: background 0.3s;
+}
+.feature-card:hover .feature-icon { background: rgba(184,242,65,0.15); }
+.feature-title {
+  font-family: var(--font);
+  font-size: 19px; font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 14px;
+}
+.feature-desc {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.8;
+  letter-spacing: 0.015em;
+}
+
+/* Map section */
+.map-section {
+  padding: 0 48px 120px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+.map-visual {
+  position: relative;
+  height: 480px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+#map-canvas { width: 100%; height: 100%; }
+.map-overlay-text {
+  position: absolute;
+  bottom: 24px; left: 24px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--lime);
+}
+.map-text h2 {
+  font-family: var(--font);
+  font-size: 40px; font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 24px;
+}
+.map-text p {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.85;
+  letter-spacing: 0.015em;
+  margin-bottom: 20px;
+}
+
+/* ══════════════════════════════════════
+   ABOUT
+══════════════════════════════════════ */
+.page-hero {
+  position: relative;
+  padding: 180px 48px 100px;
+  overflow: hidden;
+}
+.page-hero-bg { position: absolute; inset: 0; opacity: 0.12; }
+.page-hero-content { position: relative; z-index: 2; }
+
+.page-tag {
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--lime);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.page-tag::before { content: ''; width: 32px; height: 1px; background: var(--lime); }
+
+.page-h1 {
+  font-family: var(--font);
+  font-size: clamp(48px, 7vw, 96px);
+  font-weight: 700;
+  letter-spacing: -0.028em;
+  line-height: 0.95;
+}
+.page-h1 em { font-style: normal; color: var(--lime); }
+
+/* About grid */
+.about-grid {
+  padding: 80px 48px 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+.about-lead {
+  font-family: var(--font);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.005em;
+  border-left: 2px solid var(--lime);
+  padding-left: 28px;
+  margin-bottom: 40px;
+}
+.about-body p {
+  font-size: 15px;
+  color: #aaa;
+  line-height: 1.88;
+  letter-spacing: 0.018em;
+  margin-bottom: 20px;
+}
+.about-right { padding-top: 8px; }
+.value-list { list-style: none; }
+.value-item {
+  padding: 28px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex; gap: 20px; align-items: flex-start;
+  opacity: 0; transform: translateX(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.value-item.visible { opacity: 1; transform: translateX(0); }
+.value-num {
+  font-size: 11px; color: var(--lime);
+  letter-spacing: 0.12em; padding-top: 4px; flex-shrink: 0;
+}
+.value-name {
+  font-family: var(--font);
+  font-size: 17px; font-weight: 600;
+  letter-spacing: -0.005em;
+  margin-bottom: 7px;
+}
+.value-desc {
+  font-size: 13px; color: var(--muted);
+  line-height: 1.75; letter-spacing: 0.015em;
+}
+
+/* Creator card */
+.creator-section {
+  padding: 0 48px 80px;
+}
+.creator-card {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 56px 56px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 48px;
+  align-items: center;
+}
+.creator-avatar {
+  width: 88px; height: 88px;
+  background: rgba(184,242,65,0.08);
+  border: 1px solid rgba(184,242,65,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+  flex-shrink: 0;
+}
+.creator-tag {
+  font-size: 11px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--lime);
+  margin-bottom: 10px;
+}
+.creator-name {
+  font-family: var(--font);
+  font-size: 28px; font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+.creator-role {
+  font-size: 13px; color: var(--muted);
+  letter-spacing: 0.06em;
+  margin-bottom: 20px;
+}
+.creator-bio {
+  font-size: 14px; color: #aaa;
+  line-height: 1.82; letter-spacing: 0.016em;
+  max-width: 560px;
+}
+.creator-bio strong { color: var(--text); font-weight: 500; }
+
+/* Manifesto */
+.manifesto {
+  padding: 100px 48px;
+  background: var(--lime);
+  color: #0D0D0D;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.manifesto-title {
+  font-family: var(--font);
+  font-size: clamp(38px, 5vw, 68px);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+.manifesto-body p {
+  font-size: 15px; color: rgba(0,0,0,0.68);
+  line-height: 1.85; letter-spacing: 0.015em;
+  margin-bottom: 16px;
+}
+
+/* ══════════════════════════════════════
+   OBJECTIVES
+══════════════════════════════════════ */
+.obj-intro {
+  padding: 80px 48px 0;
+  max-width: 680px;
+}
+.obj-intro p {
+  font-size: 17px; color: var(--muted);
+  line-height: 1.82; letter-spacing: 0.016em;
+}
+.objectives-list { padding: 80px 48px 120px; }
+.obj-item {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 40px;
+  align-items: center;
+  padding: 48px 0;
+  border-bottom: 1px solid var(--border);
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  cursor: none;
+}
+.obj-item:hover .obj-title { color: var(--lime); }
+.obj-item.visible { opacity: 1; transform: translateY(0); }
+.obj-index {
+  font-family: var(--font);
+  font-size: 48px; font-weight: 700;
+  color: var(--border); line-height: 1;
+  letter-spacing: -0.03em;
+  transition: color 0.3s;
+}
+.obj-item:hover .obj-index { color: rgba(184,242,65,0.18); }
+.obj-title {
+  font-family: var(--font);
+  font-size: 24px; font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 12px;
+  transition: color 0.3s;
+}
+.obj-desc {
+  font-size: 14px; color: var(--muted);
+  line-height: 1.8; letter-spacing: 0.015em;
+  max-width: 560px;
+}
+.obj-tag {
+  font-size: 11px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--lime);
+  border: 1px solid rgba(184,242,65,0.3);
+  padding: 6px 14px; white-space: nowrap;
+}
+
+/* Pillars */
+.obj-pillars { padding: 80px 48px 120px; background: var(--surface); }
+.pillars-grid {
+  margin-top: 64px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.pillar {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 40px 32px;
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease, border-color 0.3s;
+}
+.pillar.visible { opacity: 1; transform: translateY(0); }
+.pillar:hover { border-color: var(--lime); }
+.pillar-glyph { font-size: 30px; margin-bottom: 20px; }
+.pillar-title {
+  font-family: var(--font);
+  font-size: 17px; font-weight: 600;
+  letter-spacing: -0.005em;
+  margin-bottom: 12px;
+}
+.pillar-text {
+  font-size: 13px; color: var(--muted);
+  line-height: 1.78; letter-spacing: 0.015em;
+}
+
+/* ── FOOTER ──────────────────────────────────────────────────── */
+footer {
+  padding: 56px 48px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-logo {
+  font-family: var(--font);
+  font-size: 14px; font-weight: 600;
+  color: var(--muted); letter-spacing: 0.04em;
+}
+.footer-logo span { color: var(--lime); }
+.footer-copy { font-size: 12px; color: #444; letter-spacing: 0.06em; }
+
+/* ── ANIMATIONS ──────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; } to { opacity: 1; }
+}
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1; }
+}
+
+/* ── SCROLL REVEAL ───────────────────────────────────────────── */
+.reveal {
+  opacity: 0; transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ──────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+@media (max-width: 900px) {
+  nav { padding: 16px 24px; }
+  .hero-content, .features, .map-section, .page-hero,
+  .about-grid, .creator-section, .objectives-list,
+  .obj-pillars, .manifesto, .obj-intro, footer { padding-left: 24px; padding-right: 24px; }
+  .hero-title { font-size: 52px; }
+  .features-grid, .about-grid, .map-section, .manifesto, .pillars-grid { grid-template-columns: 1fr; }
+  .stats-strip { grid-template-columns: 1fr; }
+  .obj-item { grid-template-columns: 48px 1fr; }
+  .obj-tag { display: none; }
+  .creator-card { grid-template-columns: 1fr; gap: 28px; }
+  .nav-links { gap: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <a href="#" class="nav-logo" onclick="return showPage('home')">common <span>ground</span></a>
+  <ul class="nav-links">
+    <li><a href="#" onclick="return showPage('home')" id="nav-home" class="active">Home</a></li>
+    <li><a href="#" onclick="return showPage('about')" id="nav-about">About</a></li>
+    <li><a href="#" onclick="return showPage('objectives')" id="nav-objectives">Objectives</a></li>
+  </ul>
+</nav>
+
+<!-- ══════════════════════════════════════
+     HOME
+══════════════════════════════════════ -->
+<div class="page active" id="page-home">
+  <section class="hero">
+    <canvas id="topo-canvas"></canvas>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Your Urban Intelligence Platform — Est. 2026</p>
+      <h1 class="hero-title">
+        Know your<br>
+        <span class="line2">neighborhood.</span>
+      </h1>
+      <p class="hero-sub">Data-driven insights that go beyond maps, understanding the real texture of urban life through accessibility, green space, transport, and civic infrastructure.</p>
+      <a href="#" class="hero-cta" onclick="return showPage('about')">
+        Explore the platform
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 8h12M8 2l6 6-6 6"/></svg>
+      </a>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <div class="stats-strip">
+    <div class="stat">
+      <div class="stat-num" data-target="500">0</div>
+      <div class="stat-label">Neighborhoods analyzed</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" data-target="42">0</div>
+      <div class="stat-label">Urban data points per block</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" data-target="12">0</div>
+      <div class="stat-label">Cities in our network</div>
+    </div>
+  </div>
+
+  <section class="features">
+    <div class="section-header reveal">
+      <p class="section-eyebrow">What we analyze</p>
+      <h2 class="section-title">The full picture<br>of a place</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon">⬡</div>
+        <h3 class="feature-title">Accessibility</h3>
+        <p class="feature-desc">Mapping how easily residents can reach essential services such as hospitals, schools, groceries, on foot, by transit, and by bike.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">◎</div>
+        <h3 class="feature-title">Public Transport</h3>
+        <p class="feature-desc">Network density, frequency, reliability, and coverage gaps across every transit mode, a real-time picture of urban mobility.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">◈</div>
+        <h3 class="feature-title">Green Spaces</h3>
+        <p class="feature-desc">Parks, canopy cover, urban gardens, and walkable nature, the living infrastructure that determines a neighborhood's quality of life.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">◇</div>
+        <h3 class="feature-title">Civic Infrastructure</h3>
+        <p class="feature-desc">Libraries, community centers, public facilities, the shared assets that tie neighborhoods together and signal civic investment.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="map-section">
+    <div class="map-visual reveal">
+      <canvas id="map-canvas"></canvas>
+      <div class="map-overlay-text">Live urban data layer</div>
+    </div>
+    <div class="map-text">
+      <p class="section-eyebrow">How it works</p>
+      <h2 class="reveal">Intelligence,<br>not just imagery</h2>
+      <p class="reveal">Traditional maps show you where things are. Common Ground shows you what they mean, layering dozens of urban signals into a single coherent picture of livability.</p>
+      <p class="reveal">Whether you're a student, a family moving cities, or a planner making infrastructure decisions, the data works for you — not the other way around.</p>
+      <a href="#" class="hero-cta" onclick="return showPage('objectives')" style="opacity:1;animation:none;margin-top:16px;display:inline-flex;">
+        Our mission
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 8h12M8 2l6 6-6 6"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-logo">common <span>ground</span> (lowercase)</div>
+    <div class="footer-copy">© 2026 — Urban intelligence for everyone</div>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════════════
+     ABOUT
+══════════════════════════════════════ -->
+<div class="page" id="page-about">
+  <section class="page-hero">
+    <canvas class="page-hero-bg" id="about-canvas"></canvas>
+    <div class="page-hero-content">
+      <p class="page-tag">Who we are</p>
+      <h1 class="page-h1">Built on<br><em>shared ground.</em></h1>
+    </div>
+  </section>
+
+  <div class="about-grid">
+    <div class="about-left">
+      <div class="about-lead reveal">
+        Common Ground exists because cities are too important to be misunderstood.
+      </div>
+      <div class="about-body">
+        <p class="reveal">We started with a simple frustration: people make life-defining decisions about where to live, work, and invest, based on gut feeling, incomplete data, or maps that only show geography, not livability.</p>
+        <p class="reveal">Common Ground was built to change that. By weaving together open data on transit, green space, civic infrastructure, and accessibility, we produce a layered, honest portrait of what neighborhoods are actually like to inhabit.</p>
+        <p class="reveal">The platform is designed to be understood by anyone, not just those with technical backgrounds or institutional access. Urban intelligence should be a public good.</p>
+      </div>
+    </div>
+    <div class="about-right">
+      <ul class="value-list">
+        <li class="value-item">
+          <span class="value-num">01</span>
+          <div>
+            <div class="value-name">Transparency first</div>
+            <div class="value-desc">Every data source is documented. Every methodology is open. We don't hide how we reach our conclusions.</div>
+          </div>
+        </li>
+        <li class="value-item">
+          <span class="value-num">02</span>
+          <div>
+            <div class="value-name">Designed for everyone</div>
+            <div class="value-desc">From a student writing a geography essay to a city planner allocating bus routes — the same platform serves both, equally.</div>
+          </div>
+        </li>
+        <li class="value-item">
+          <span class="value-num">03</span>
+          <div>
+            <div class="value-name">Data with context</div>
+            <div class="value-desc">Numbers without meaning are noise. We layer data with historical context, equity analysis, and local nuance.</div>
+          </div>
+        </li>
+        <li class="value-item">
+          <span class="value-num">04</span>
+          <div>
+            <div class="value-name">Useful, not decorative</div>
+            <div class="value-desc">We build tools people actually act on — not dashboards that look impressive in a deck and collect dust after.</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- CREATOR CARD -->
+  <div class="creator-section">
+    <div class="creator-card reveal">
+      <div class="creator-avatar">️✏️</div>
+      <div>
+        <div class="creator-tag">The person behind it</div>
+        <div class="creator-name">Prathamesh Parkhi</div>
+        <div class="creator-role">High School Junior — Passion Project, 2026</div>
+        <p class="creator-bio">
+          Common Ground began as my <strong>high school passion project</strong>, the kind that starts with a question you can't stop thinking about. For me, that question was simple: <strong>why is it so hard to actually understand a neighborhood?</strong><br><br>
+          What started as a personal research exercise grew into a full platform. I built Common Ground with the conviction that urban data, the kind that shapes where people live, how they move, and what resources they access, should be legible to anyone, not just those with a GIS degree or a city council budget. This is that attempt.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="manifesto">
+    <div class="manifesto-title">Cities are<br>made of<br>people, not<br>polygons.</div>
+    <div class="manifesto-body">
+      <p>The most important things about a neighborhood can't be captured in a satellite image, the frequency of the bus you take to work, the distance to the nearest park, whether your street has a library nearby.</p>
+      <p>I believe that access to this kind of deep, layered urban knowledge shouldn't be the exclusive province of consultants and institutions. It belongs to residents, researchers, students, and planners alike.</p>
+      <p>That's what common ground means: the shared understanding of cities that makes better decisions possible.</p>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-logo">common <span>ground</span> (lowercase)</div>
+    <div class="footer-copy">© 2026 — Prathamesh Parkhi</div>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════════════
+     OBJECTIVES
+══════════════════════════════════════ -->
+<div class="page" id="page-objectives">
+  <section class="page-hero">
+    <canvas class="page-hero-bg" id="obj-canvas"></canvas>
+    <div class="page-hero-content">
+      <p class="page-tag">What we're building toward</p>
+      <h1 class="page-h1">Clear goals.<br><em>Real impact.</em></h1>
+    </div>
+  </section>
+
+  <div class="obj-intro reveal">
+    <p>Common Ground is structured around six interlocking objectives — each one a commitment to how we build, what we prioritize, and who we serve.</p>
+  </div>
+
+  <div class="objectives-list">
+    <div class="obj-item">
+      <div class="obj-index">01</div>
+      <div class="obj-content">
+        <h3 class="obj-title">Democratize urban data access</h3>
+        <p class="obj-desc">Make high-quality neighborhood intelligence available to anyone with an internet connection — free of paywalls, free of jargon, and free of institutional gatekeeping. Urban data belongs to urban residents.</p>
+      </div>
+      <div class="obj-tag">Access</div>
+    </div>
+    <div class="obj-item">
+      <div class="obj-index">02</div>
+      <div class="obj-content">
+        <h3 class="obj-title">Surface inequality in infrastructure</h3>
+        <p class="obj-desc">Use data to make visible what's often invisible ,the systematic underinvestment in certain neighborhoods, the transit deserts, the green space gaps. Name the disparities so they can be addressed.</p>
+      </div>
+      <div class="obj-tag">Equity</div>
+    </div>
+    <div class="obj-item">
+      <div class="obj-index">03</div>
+      <div class="obj-content">
+        <h3 class="obj-title">Support evidence-based planning</h3>
+        <p class="obj-desc">Give city planners, researchers, and policy teams a reliable, integrated data layer, so decisions about where to build, invest, and improve are grounded in reality, not assumption.</p>
+      </div>
+      <div class="obj-tag">Planning</div>
+    </div>
+    <div class="obj-item">
+      <div class="obj-index">04</div>
+      <div class="obj-content">
+        <h3 class="obj-title">Enable informed resident decisions</h3>
+        <p class="obj-desc">Help families, students, and individuals understand neighborhoods before they move, study, or advocate, giving them the same depth of insight once reserved for corporate site-selection consultants.</p>
+      </div>
+      <div class="obj-tag">Residents</div>
+    </div>
+    <div class="obj-item">
+      <div class="obj-index">05</div>
+      <div class="obj-content">
+        <h3 class="obj-title">Build open, reproducible methodology</h3>
+        <p class="obj-desc">Every score, index, and insight we produce is fully documented and openly replicable. We publish our methods so researchers can extend, challenge, and improve what we've built.</p>
+      </div>
+      <div class="obj-tag">Openness</div>
+    </div>
+    <div class="obj-item">
+      <div class="obj-index">06</div>
+      <div class="obj-content">
+        <h3 class="obj-title">Expand coverage across cities</h3>
+        <p class="obj-desc">Grow from our founding network to comprehensive coverage globally, prioritizing cities where data gaps are largest and the need for urban intelligence is most acute.</p>
+      </div>
+      <div class="obj-tag">Growth</div>
+    </div>
+  </div>
+
+  <section class="obj-pillars">
+    <div class="section-header reveal">
+      <p class="section-eyebrow">Underpinning it all</p>
+      <h2 class="section-title">Three pillars</h2>
+    </div>
+    <div class="pillars-grid">
+      <div class="pillar">
+        <div class="pillar-glyph">◎</div>
+        <h3 class="pillar-title">Data integrity</h3>
+        <p class="pillar-text">We never publish a metric we can't source, explain, and defend. If the data is imperfect, we say so, loudly.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-glyph">⬡</div>
+        <h3 class="pillar-title">Human centrality</h3>
+        <p class="pillar-text">Neighborhoods are about people's lived experience. Every analytic choice is weighted by what actually matters to human wellbeing.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-glyph">◈</div>
+        <h3 class="pillar-title">Radical accessibility</h3>
+        <p class="pillar-text">Not just free, it is legible and genuinely useful to a 17-year-old student and a 60-year-old council member equally.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-logo">common <span>ground</span> (lowercase)</div>
+    <div class="footer-copy">© 2026 — Prathamesh Parkhi</div>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════ -->
+<script>
+// ── CURSOR ────────────────────────────────────────────────────
+const cursor = document.getElementById('cursor');
+const ring   = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+(function animCursor() {
+  cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+  rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  requestAnimationFrame(animCursor);
+})();
+
+// ── NAV SCROLL ────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// ── PAGE SWITCHING ────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  const pg = document.getElementById('page-' + id);
+  if (!pg) return false;
+  pg.classList.add('active');
+  const navEl = document.getElementById('nav-' + id);
+  if (navEl) navEl.classList.add('active');
+  window.scrollTo(0, 0);
+  setTimeout(initReveal, 120);
+  if (id === 'home')       { initTopoCanvas(); initMapCanvas(); }
+  if (id === 'about')      { initPageCanvas('about-canvas'); }
+  if (id === 'objectives') { initPageCanvas('obj-canvas'); }
+  return false;
+}
+
+// ── SCROLL REVEAL ─────────────────────────────────────────────
+function initReveal() {
+  const sel = '.page.active .reveal, .page.active .obj-item, .page.active .value-item, .page.active .pillar';
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), i * 80);
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll(sel).forEach(el => obs.observe(el));
+}
+
+// ── COUNTERS ──────────────────────────────────────────────────
+function initCounters() {
+  document.querySelectorAll('.stat-num[data-target]').forEach(el => {
+    const target = parseInt(el.dataset.target);
+    let cur = 0;
+    const step = target / 60;
+    const t = setInterval(() => {
+      cur = Math.min(cur + step, target);
+      el.textContent = Math.floor(cur) + (target >= 100 ? '+' : '');
+      if (cur >= target) clearInterval(t);
+    }, 20);
+  });
+}
+const statsObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { initCounters(); statsObs.disconnect(); } });
+}, { threshold: 0.3 });
+const statsEl = document.querySelector('.stats-strip');
+if (statsEl) statsObs.observe(statsEl);
+
+// ── TOPO CANVAS (home hero) ───────────────────────────────────
+function initTopoCanvas() {
+  const canvas = document.getElementById('topo-canvas');
+  if (!canvas || canvas._running) return;
+  canvas._running = true;
+  const ctx = canvas.getContext('2d');
+  let W, H, t = 0;
+  const resize = () => { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; };
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Permutation table for Perlin noise
+  const perm = Array.from({length:256}, (_,i) => i).sort(() => Math.random()-0.5);
+  const p = [...perm, ...perm];
+  const fade = t => t*t*t*(t*(t*6-15)+10);
+  const lerp  = (t,a,b) => a+t*(b-a);
+  const grad  = (h,x,y) => { h&=3; const u=h<2?x:y, v=h<2?y:x; return ((h&1)?-u:u)+((h&2)?-v:v); };
+  function noise(x, y) {
+    const X=Math.floor(x)&255, Y=Math.floor(y)&255;
+    x-=Math.floor(x); y-=Math.floor(y);
+    const u=fade(x), v=fade(y), a=p[X]+Y, b=p[X+1]+Y;
+    return lerp(v, lerp(u, grad(p[a],x,y), grad(p[b],x-1,y)),
+                   lerp(u, grad(p[a+1],x,y-1), grad(p[b+1],x-1,y-1)));
+  }
+
+  (function draw() {
+    ctx.clearRect(0,0,W,H);
+    for (let lv = 0; lv < 18; lv++) {
+      const threshold = (lv/18)*2 - 1;
+      ctx.beginPath();
+      for (let x = 0; x < W; x += 6) {
+        let prev = null;
+        for (let y = 0; y < H; y += 6) {
+          const val = noise(x/280 + t*0.08, y/280 + t*0.05);
+          if (prev !== null && (prev < threshold) !== (val < threshold)) {
+            ctx.lineTo(x, y - 6 + 6*(threshold-prev)/(val-prev));
+          }
+          if (val >= threshold) ctx.moveTo(x,y);
+          prev = val;
+        }
+      }
+      ctx.strokeStyle = `rgba(184,242,65,${(0.3+(lv/18)*0.5)*0.4})`;
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    }
+    t += 0.004;
+    requestAnimationFrame(draw);
+  })();
+}
+
+// ── MAP CANVAS (home section) ─────────────────────────────────
+function initMapCanvas() {
+  const canvas = document.getElementById('map-canvas');
+  if (!canvas || canvas._running) return;
+  canvas._running = true;
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  const resize = () => { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; };
+  resize();
+  const dots = Array.from({length:60}, () => ({
+    x: Math.random()*500, y: Math.random()*500,
+    vx: (Math.random()-.5)*.4, vy: (Math.random()-.5)*.4,
+    r: Math.random()*3+1,
+    bright: Math.random()>.85
+  }));
+  (function draw() {
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle = 'rgba(184,242,65,0.06)';
+    ctx.lineWidth = 0.5;
+    for (let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for (let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+    dots.forEach((a,i)=>{
+      dots.slice(i+1).forEach(b=>{
+        const d=Math.hypot(a.x-b.x,a.y-b.y);
+        if(d<120){
+          ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
+          ctx.strokeStyle=`rgba(184,242,65,${(1-d/120)*0.25})`;
+          ctx.lineWidth=0.5;ctx.stroke();
+        }
+      });
+      a.x+=a.vx;a.y+=a.vy;
+      if(a.x<0||a.x>W)a.vx*=-1;
+      if(a.y<0||a.y>H)a.vy*=-1;
+    });
+    dots.forEach(d=>{
+      ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+      ctx.fillStyle=d.bright?'#B8F241':'rgba(184,242,65,0.4)';ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  })();
+}
+
+// ── PAGE HERO CANVAS ──────────────────────────────────────────
+function initPageCanvas(id) {
+  const canvas = document.getElementById(id);
+  if (!canvas || canvas._running) return;
+  canvas._running = true;
+  const ctx = canvas.getContext('2d');
+  let W, H, t = Math.random()*100;
+  const resize = () => { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; };
+  resize();
+  const n2 = (x,y) =>
+    Math.sin(x*1.7+t)*Math.cos(y*1.3-t*.7) +
+    Math.sin(x*.9-t*.5)*Math.cos(y*2.1+t*.3);
+  (function draw() {
+    ctx.clearRect(0,0,W,H);
+    for (let lv=0;lv<10;lv++) {
+      const th=(lv/10)*4-2;
+      ctx.beginPath();
+      for (let x=0;x<=W;x+=8) {
+        let found=false;
+        for (let y=0;y<H-8;y+=8) {
+          const v0=n2(x/200,y/200), v1=n2(x/200,(y+8)/200);
+          if((v0<th)!==(v1<th)){
+            const fy=y+8*(th-v0)/(v1-v0);
+            if(!found){ctx.moveTo(x,fy);found=true;}else ctx.lineTo(x,fy);
+          }
+        }
+      }
+      ctx.strokeStyle=`rgba(184,242,65,${0.07+lv*0.02})`;
+      ctx.lineWidth=0.8;ctx.stroke();
+    }
+    t+=0.003;
+    requestAnimationFrame(draw);
+  })();
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+initTopoCanvas();
+initMapCanvas();
+setTimeout(initReveal, 300);
+</script>
+</body>
+</html>
